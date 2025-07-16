@@ -1,2 +1,24 @@
-# TSAS
-A visually striking web app that lets you search for any country and instantly displays its capital city and population, all with a trippy animated background. Powered by JavaScript, HTML, and the countriesnow.space API.
+## Features
+- Search for any country and get its capital city and population
+- Animated, interactive black-and-white background with mouse trails
+- Clean, modern, and fun UI
+- Powered by the [countriesnow.space API](https://countriesnow.space/api/v0.1/countries/population/cities)
+
+## Usage
+1. Open `index.html` in your browser.
+2. Enter a country name in the search bar (e.g., `France`, `Japan`).
+3. Click `Search` to see the capital and population.
+
+## Demo
+![screenshot](screenshot.png) <!-- Add a screenshot if you want! -->
+
+## Tech Stack
+- HTML, CSS, JavaScript
+- Canvas API for visuals
+- Public REST API for country/capital/population data
+
+## Credits
+- Visuals and code by Odey
+- Data from [countriesnow.space](https://countriesnow.space/)
+
+---
