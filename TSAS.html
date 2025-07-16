@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Odey's Country Tracker</title>
+    
+    <style>
+        /* So right here this is really just to setup the background nothin crazy */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #111;
+        }
+        /* Flexbarred it up to center it all */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+        /* Ccanvas to make some trippy stuff and fix bg */
+        canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            pointer-events: none;
+            z-index: 1;
+        }
+        /* everythig */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 7vh;
+        }
+        /* make the title blue and shiny */
+        h1 {
+            margin: 0 0 1.2em 0;
+            font-size: 3.2vw;
+            color: #2196f3;
+            text-shadow: 0 0 30px #2196f3, 0 0 60px #2196f3;
+            letter-spacing: 0.2em;
+            animation: none;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+        }
+        /* style intro */
+        .intro {
+            color: #fff;
+            background: rgba(20,20,20,0.85);
+            padding: 1.2em 2em;
+            border-radius: 1em;
+            box-shadow: 0 0 30px #0008;
+            font-size: 1.2em;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            max-width: 90vw;
+            margin-bottom: 2em;
+        }
+        /* style seach bar */
+        #search-container {
+            background: rgba(20,20,20,0.85);
+            padding: 2em 2em 1em 2em;
+            border-radius: 1em;
+            box-shadow: 0 0 30px #0008;
+            text-align: center;
+            margin-bottom: 2em;
+        }
+        /* style input field */
+        #country-input {
+            font-size: 1.2em;
+            padding: 0.5em;
+            border-radius: 0.5em;
+            border: none;
+            outline: none;
+            width: 220px;
+            margin-bottom: 1em;
+        }
+        /* style search button */
+        #search-btn {
+            font-size: 1.1em;
+            padding: 0.5em 1.2em;
+            border-radius: 0.5em;
+            border: none;
+            background: #222;
+            color: #fff;
+            cursor: pointer;
+            margin-left: 0.5em;
+        }
+        /* style result */
+        #result {
+            margin-top: 1em;
+            color: #fff;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Trippy animated background -->
+    <canvas id="trippy"></canvas>
+    <div class="main-content">
+        <!-- Main title -->
+        <h1>Odey's thingy</h1>
+        <!-- Introductory message -->
+        <div class="intro">Request a country, and with my magic skills I will list its capital city's population and name.</div>
+        <!-- Search bar and result area -->
+        <div id="search-container">
+            <input id="country-input" type="text" placeholder="Enter a country..." />
+            <button id="search-btn">Search</button>
+            <div id="result"></div>
+        </div>
+    </div>
+    <script>
+    // Get canvas and set up drawing context
+    const canvas = document.getElementById('trippy');
+    const ctx = canvas.getContext('2d');
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    canvas.width = w;
+    canvas.height = h;
+
+    // Handle window resizing for canvas
+    function resize() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+    }
+    window.addEventListener('resize', resize);
+
+    // my favrotie part, this was to make the circles and do some crazy stuff, took to long for how it works but i am proud of it
+    function draw(time) {
+        ctx.clearRect(0, 0, w, h);
+        let cx = w/2, cy = h/2;
+        for(let i=0; i<30; i++) {
+            let angle = time/800 + i*0.2;
+            let radius = 120 + Math.sin(time/1000 + i)*80;
+            let x = cx + Math.cos(angle)*radius*2;
+            let y = cy + Math.sin(angle)*radius*2;
+            ctx.beginPath();
+            ctx.arc(x, y, 60 + Math.sin(time/400 + i)*30, 0, 2*Math.PI);
+            // Calculate grayscale color
+            let gray = Math.floor(255 * (0.5 + 0.5 * Math.sin(time/1000 + i)));
+            ctx.strokeStyle = `rgb(${gray},${gray},${gray})`;
+            ctx.lineWidth = 10 + Math.sin(time/300 + i)*8;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 40;
+            ctx.stroke();
+        }
+        // Center pulsing circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, 80 + Math.sin(time/200)*40, 0, 2*Math.PI);
+        let centerGray = Math.floor(255 * (0.5 + 0.5 * Math.sin(time/800)));
+        ctx.strokeStyle = `rgb(${centerGray},${centerGray},${centerGray})`;
+        ctx.lineWidth = 30 + Math.sin(time/100)*10;
+        ctx.shadowColor = ctx.strokeStyle;
+        ctx.shadowBlur = 60;
+        ctx.stroke();
+        requestAnimationFrame(draw);
+    }
+    draw(0);
+
+    // Store mouse trail points for trippy effect
+    let mouseTrails = [];
+    document.body.addEventListener('mousemove', e => {
+        mouseTrails.push({x: e.clientX, y: e.clientY, t: Date.now()});
+        if(mouseTrails.length > 100) mouseTrails.shift();
+    });
+    // Draw animated mouse trails in black and white
+    function drawTrails() {
+        for(let i=0; i<mouseTrails.length; i++) {
+            let t = (Date.now() - mouseTrails[i].t)/1000;
+            let gray = Math.floor(255 * (0.5 + 0.5 * Math.sin(Date.now()/800 + i)));
+            ctx.beginPath();
+            ctx.arc(mouseTrails[i].x, mouseTrails[i].y, 30-t*20, 0, 2*Math.PI);
+            ctx.strokeStyle = `rgb(${gray},${gray},${gray})`;
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = Math.max(0, 1-t/1.5);
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(drawTrails);
+    }
+    drawTrails();
+
+    // Search logic for country capital and population
+    document.getElementById('search-btn').onclick = async function() {
+        const country = document.getElementById('country-input').value.trim();
+        const resultDiv = document.getElementById('result');
+        if (!country) {
+            resultDiv.textContent = 'Please enter a country.';
+            return;
+        }
+        resultDiv.textContent = 'Searching...';
+        try {
+            // Fetch city population data from API
+            const res = await fetch('https://countriesnow.space/api/v0.1/countries/population/cities');
+            const data = await res.json();
+            // Find the first city that is a capital for the country
+            const found = data.data.find(
+                c => c.country.toLowerCase() === country.toLowerCase() && c.isCapital
+            );
+            if (found) {
+                // Get the latest population value if available
+                const pop = found.populationCounts.length > 0 ? found.populationCounts[found.populationCounts.length-1].value : 'Unknown';
+                resultDiv.innerHTML = `<b>Capital:</b> ${found.city}<br><b>Population:</b> ${pop}`;
+            } else {
+                resultDiv.textContent = 'No capital city data found for that country.';
+            }
+        } catch (e) {
+            resultDiv.textContent = 'Error fetching data.';
+        }
+    };
+    </script>
+</body>
+</html>
